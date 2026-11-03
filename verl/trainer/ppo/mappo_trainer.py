@@ -1514,6 +1514,9 @@ class RayMAPPOTrainer:
         batch.batch["input_ids"] = input_ids
         batch.batch["attention_mask"] = attention_mask
         batch.non_tensor_batch.pop("raw_prompt_ids", None)
+        # The async agent loop re-applies the chat template to non_tensor_batch["raw_prompt"]
+        # (single_turn_agent_loop.py) and ignores input_ids, so raw_prompt must carry the history too.
+        batch.non_tensor_batch["raw_prompt"] = np.fromiter(prompts, dtype=object, count=len(prompts))
         return raw_prompts
 
     def _build_input_ids_adversary(self,system_prompt,questions,batch:DataProto,agent_key,max_history_tokens):
